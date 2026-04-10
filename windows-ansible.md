@@ -43,7 +43,15 @@ sudo pip3 install "pywinrm>=0.3.0"
 ```bash
 ansible-galaxy collection install ansible.windows
 ```
-
+---
+Ubuntu machine commands
+```bash
+sudo apt update
+sudo apt install -y python3 python3-pip
+sudo pip3 install ansible --break-system-packages
+sudo pip3 install "pywinrm>=0.3.0" --break-system-packages
+ansible-galaxy collection install ansible.windows
+```
 ---
 
 ## Phase 3: Configure the Ansible Inventory
