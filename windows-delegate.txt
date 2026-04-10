@@ -1,0 +1,38 @@
+IN WINDOWS MACHINE
+
+1.  Install Docker in windows server 
+
+  Install-WindowsFeature -Name Containers
+  Install-WindowsFeature -Name Containers -IncludeAllSubFeature -Restart
+  Get-WindowsFeature -Name Containers
+  Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
+  Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/microsoft/Windows-Containers/Main/helpful_tools/Install-DockerCE/install-docker-ce.ps1" -o install-docker-ce.ps1
+  .\install-docker-ce.ps1
+  Restart-Computer -Force
+  Install-PackageProvider -Name DockerMsftProvider -Force
+
+2. Open 3000 port for communications
+
+  New-NetFirewallRule -DisplayName "Harness Runner" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow
+
+3. Run the command for delegate runner
+
+  Invoke-WebRequest -Uri "https://github.com/harness/harness-docker-runner/releases/download/v0.1.22/harness-docker-runner-windows-amd64.exe" -o delegate.exe
+
+4.  After that run this command 
+
+  delegate.exe server
+
+IN LINUX SERVER
+
+Install docker and get the delegate command from the harness and replace the necessary ID's
+
+docker run -d --cpus=1 --memory=2g \
+  -e DELEGATE_NAME=docker-delegate \
+  -e NEXT_GEN="true" \
+  -e DELEGATE_TYPE="DOCKER" \
+  -e RUNNER_URL=http://windows_private_ip:3000 \
+  -e ACCOUNT_ID=account_id \
+  -e DELEGATE_TOKEN=delegate_tocken \
+  -e DELEGATE_TAGS="windows-amd64" \
+  -e MANAGER_HOST_AND_PORT=https://app.harness.io us-docker.pkg.dev/gar-prod-setup/harness-public/harness/delegate:26.03.88803
