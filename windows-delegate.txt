@@ -36,3 +36,8 @@ docker run -d --cpus=1 --memory=2g \
   -e DELEGATE_TOKEN=delegate_tocken \
   -e DELEGATE_TAGS="windows-amd64" \
   -e MANAGER_HOST_AND_PORT=https://app.harness.io us-docker.pkg.dev/gar-prod-setup/harness-public/harness/delegate:26.03.88803
+
+Note: 
+1.  The tag of windows-amd64 is important to let harness know that a windows machine is there
+2.  To check the connectivity between Linux and Windows use this command in Linux it will return a simple text command
+        curl "http://windows-ip:3000/healthz"
