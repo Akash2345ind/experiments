@@ -1,5 +1,3 @@
----
-
 ## Phase 1: Prepare the Windows Target (The Managed Node)
 
 1.  **Open PowerShell** (if not already there).
