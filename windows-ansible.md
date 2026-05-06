@@ -1,10 +1,6 @@
-To get Ansible talking to a Windows VM from a CentOS 9 machine in a CLI-only environment, you essentially need to build a "bridge" using **WinRM (Windows Remote Management)**. Since you can't use `gcloud` commands, we'll focus entirely on what to run inside the shells of both machines.
-
 ---
 
 ## Phase 1: Prepare the Windows Target (The Managed Node)
-
-Since you are CLI-only, you are likely using the **Google Cloud Serial Console** or an existing SSH connection to access PowerShell. Ansible needs WinRM enabled to execute commands.
 
 1.  **Open PowerShell** (if not already there).
 2.  **Run the Setup Script**: The easiest way is to use the official Ansible configuration script. Run these commands to download and execute it:
@@ -24,7 +20,7 @@ winrm enumerate winrm/config/Listener
 
 ---
 
-## Phase 2: Prepare the CentOS 9 VM (The Control Node)
+## Phase 2: Prepare the VM (The Control Node)
 
 CentOS 9 Stream uses `dnf`. You need to install Ansible and the `pywinrm` library, which allows Python (and thus Ansible) to speak the WinRM protocol.
 
@@ -44,7 +40,7 @@ sudo pip3 install "pywinrm>=0.3.0"
 ansible-galaxy collection install ansible.windows
 ```
 ---
-Ubuntu machine commands
+## Ubuntu machine commands
 ```bash
 sudo apt update
 sudo apt install -y python3 python3-pip
@@ -57,8 +53,6 @@ ansible-galaxy collection install ansible.windows
 ## Phase 3: Configure the Ansible Inventory
 
 You need to tell Ansible how to find the Windows machine and what credentials to use. Create a file named `inventory.ini`.
-
-
 
 ```ini
 [windows]
@@ -81,19 +75,27 @@ Create a file named `install_iis.yml`. We will use the `win_feature` module to h
 
 ```yaml
 ---
-- name: Install IIS on Windows
+- name: Install IIS and .NET on Windows
   hosts: windows
   tasks:
-    - name: Install IIS (Web-Server)
+    - name: Install .NET Framework 4.8
       ansible.windows.win_feature:
-        name: Web-Server
+        name: Net-Framework-45-Core  # This covers 4.5 through 4.8 on modern Server OS
+        state: present
+      register: dotnet_result
+
+    - name: Install IIS (Web-Server) with ASP.NET 4.8
+      ansible.windows.win_feature:
+        name: 
+          - Web-Server
+          - Web-Asp-Net45  # Installs ASP.NET 4.8 support for IIS
         state: present
         include_management_tools: yes
       register: iis_result
 
-    - name: Reboot if IIS installation requires it
+    - name: Reboot if .NET or IIS installation requires it
       ansible.windows.win_reboot:
-      when: iis_result.reboot_required
+      when: iis_result.reboot_required or dotnet_result.reboot_required
 ```
 
 ---
@@ -108,7 +110,7 @@ ansible-playbook -i inventory.ini install_iis.yml
 
 ### Troubleshooting Tips:
 * **Connectivity**: From CentOS, try `ping <Windows_Internal_IP>`. If it fails, check your GCP Firewall Rules (you'll need to do this in the GCP Web Console since `gcloud` is restricted).
-* **Authentication**: If you get a 401 Unauthorized error, double-check the username and password in the `inventory.ini`. If you are using a local account, the username is usually just the name; for domain accounts, use `user@domain.com`.
+* **Authentication**: If you get a 401 Unauthorized error, double-check the username and password in the `inventory.ini`. If you are using a local account, the username is usually just the name; for domain accounts, use `user@ip-address`.
 * **Port 5986**: If you want to be extra secure using HTTPS, ensure the script in Phase 1 finished successfully and that port 5986 is open.
 
 Since you're working in a restricted CLI environment, are you using local Windows accounts or are these VMs joined to an Active Directory domain?
