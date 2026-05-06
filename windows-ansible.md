@@ -110,5 +110,3 @@ ansible-playbook -i inventory.ini install_iis.yml
 * **Connectivity**: From CentOS, try `ping <Windows_Internal_IP>`. If it fails, check your GCP Firewall Rules (you'll need to do this in the GCP Web Console since `gcloud` is restricted).
 * **Authentication**: If you get a 401 Unauthorized error, double-check the username and password in the `inventory.ini`. If you are using a local account, the username is usually just the name; for domain accounts, use `user@ip-address`.
 * **Port 5986**: If you want to be extra secure using HTTPS, ensure the script in Phase 1 finished successfully and that port 5986 is open.
-
-Since you're working in a restricted CLI environment, are you using local Windows accounts or are these VMs joined to an Active Directory domain?
