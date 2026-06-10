@@ -34,7 +34,7 @@ docker run -d --cpus=1 --memory=2g \
   -e RUNNER_URL=http://windows_private_ip:3000 \
   -e ACCOUNT_ID=account_id \
   -e DELEGATE_TOKEN=delegate_tocken \
-  -e DELEGATE_TAGS="windows-amd64" \
+  -e DELEGATE_TAGS="windows-amd64" \  //This is very important to harness identify the vm
   -e MANAGER_HOST_AND_PORT=https://app.harness.io us-docker.pkg.dev/gar-prod-setup/harness-public/harness/delegate:26.03.88803
 
 Note: 
